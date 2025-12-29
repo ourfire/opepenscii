@@ -397,7 +397,7 @@ const getSupply = async () => {
                   ? "Minting..."
                   : !isConnected
                     ? "CONNECT WALLET TO MINT"
-                    : remaining === 0}
+                    : `MINT ${mintAmount} FOR ${(0.004 * mintAmount).toFixed(3)} ETH`}
               </button>
 
               
