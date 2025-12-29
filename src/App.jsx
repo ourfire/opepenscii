@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet, ExternalLink, Twitter, MessageCircle } from 'lucide-react';
+import {ethers} from 'ethers';
+import ABI from './abi.json';
 
 export default function OpepensciiLanding() {
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
   const [mintAmount, setMintAmount] = useState(1);
   const [scrollY, setScrollY] = useState(0);
+  const provider = new ethers.JsonRpcProvider("https://mainnet.infura.io/v3/d9f25ac9b06a46e4a546e8dca688a7b9");
+  const CONTRACT_ADDRESS = "0x1B52D008d60D0D2aeE831eE935199cb98fd43E78";
+  const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider)
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -34,6 +39,24 @@ export default function OpepensciiLanding() {
     }
     alert(`Minting ${mintAmount} Opepenscii NFT(s)...`);
   };
+
+const getSupply = async () => {
+    const totalSupply = await contract.totalSupply();
+    return totalSupply;
+  }
+
+  const [minted, setMinted] = useState("0");
+  const remaining =  10000 - parseInt(minted);
+  const percentMinted = (parseInt(minted) / 10000) * 100;
+
+  useEffect(() => {
+    const fetchSupply = async () => {
+      const supply = await getSupply();
+      setMinted(supply.toString());
+    };
+    fetchSupply();
+  }, []);
+ 
 
   const collections = [
     { 
@@ -152,7 +175,6 @@ export default function OpepensciiLanding() {
       </text>
   </svg>
   );
-
   return (
     <div className="min-h-screen bg-black text-white">
       <style>
@@ -281,7 +303,7 @@ export default function OpepensciiLanding() {
               
               <div className="flex items-center justify-between bg-black/50 rounded-2xl p-6 border border-white/10">
                 <span className="text-lg text-gray-400">Remaining</span>
-                <span className="text-2xl font-bold">8,888</span>
+                <span className="text-2xl font-bold">{remaining}</span>
               </div>
               
               <div className="bg-black/50 rounded-2xl p-6 border border-white/10">
@@ -320,9 +342,9 @@ export default function OpepensciiLanding() {
               </button>
               
               <div className="h-3 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-white rounded-full transition-all duration-500" style={{ width: '33%' }} />
+                <div className="h-full bg-white rounded-full transition-all duration-500" style={{ width: `${percentMinted}%` }} />
               </div>
-              <p className="text-center text-sm text-gray-500">2,962 / 8,888 minted</p>
+              <p className="text-center text-sm text-gray-500">{minted} / 10000 minted</p>
             </div>
           </div>
         </div>
