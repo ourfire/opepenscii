@@ -15,6 +15,8 @@ export default function OpepensciiLanding() {
   const remaining =  10000 - parseInt(minted);
   const percentMinted = (parseInt(minted) / 10000) * 100;
   const maxMintAllowed = Math.min(100, remaining);
+  const [isMinting, setIsMinting] = useState(false);
+
 
 const getSigner = async () => {
   if (!window.ethereum) {
@@ -47,24 +49,11 @@ const connectWallet = async () => {
 };
 
 const handleMint = async () => {
-  if (!isConnected) {
-    alert("Connect wallet first");
-    return;
-  }
-
-  if (remaining === 0) {
-    alert("Sold out");
-    return;
-  }
-
-  const maxMintAllowed = Math.min(100, remaining);
-
-  if (mintAmount > maxMintAllowed) {
-    alert(`You can mint up to ${maxMintAllowed} NFTs`);
-    return;
-  }
+  if (!isConnected || isMinting) return;
 
   try {
+    setIsMinting(true);
+
     const writeContract = await getWriteContract();
 
     const PRICE_PER_NFT = ethers.parseEther("0.004");
@@ -75,19 +64,20 @@ const handleMint = async () => {
       { value: totalValue }
     );
 
-    console.log("Tx hash:", tx.hash);
+    console.log("Tx sent:", tx.hash);
+
     await tx.wait();
 
     alert("Mint successful");
 
-    const newSupply = await contract.totalSupply();
-    setMinted(newSupply.toString());
-
   } catch (err) {
     console.error(err);
     alert(err.reason || err.message || "Mint failed");
+  } finally {
+    setIsMinting(false);
   }
 };
+
 
 
 
@@ -394,9 +384,12 @@ const getSupply = async () => {
               <button
                 onClick={handleMint}
                 className="w-full py-6 bg-white text-black rounded-2xl font-bold text-xl hover:bg-gray-200 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                disabled={!isConnected}
+                disabled={!isConnected || isMinting || remaining === 0}
               >
                 {isConnected ? `MINT ${mintAmount} FOR ${(mintAmount * 0.004).toFixed(3)} ETH` : 'CONNECT WALLET TO MINT'}
+              {isMinting
+              ? "Minting..."
+              : `Mint ${mintAmount} for ${(mintAmount * 0.004).toFixed(3)} ETH`}
               </button>
               
               <div className="h-3 bg-white/10 rounded-full overflow-hidden">
