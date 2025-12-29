@@ -7,18 +7,32 @@ export default function OpepensciiLanding() {
   const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
   const [mintAmount, setMintAmount] = useState(1);
-  const [scrollY, setScrollY] = useState(0);
   const provider = new ethers.JsonRpcProvider("https://mainnet.infura.io/v3/d9f25ac9b06a46e4a546e8dca688a7b9");
   const CONTRACT_ADDRESS = "0x1B52D008d60D0D2aeE831eE935199cb98fd43E78";
   const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider)
+  const MAX_MINT_PER_TX = 100;
+  const [minted, setMinted] = useState("0");
+  const remaining =  10000 - parseInt(minted);
+  const percentMinted = (parseInt(minted) / 10000) * 100;
+  const maxMintAllowed = Math.min(100, remaining);
 
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+const getSigner = async () => {
+  if (!window.ethereum) {
+    alert('Please install MetaMask');
+    return null;
+  }
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  return await provider.getSigner();
+};
 
-  const connectWallet = async () => {
+const getWriteContract = async () => {
+  const signer = await getSigner();
+  return new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+};
+
+
+const connectWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -30,24 +44,57 @@ export default function OpepensciiLanding() {
     } else {
       alert('Please install MetaMask or another Web3 wallet');
     }
-  };
+};
 
-  const handleMint = async () => {
-    if (!isConnected) {
-      alert('Please connect your wallet first');
-      return;
-    }
-    alert(`Minting ${mintAmount} Opepenscii NFT(s)...`);
-  };
+const handleMint = async () => {
+  if (!isConnected) {
+    alert("Connect wallet first");
+    return;
+  }
+
+  if (remaining === 0) {
+    alert("Sold out");
+    return;
+  }
+
+  const maxMintAllowed = Math.min(100, remaining);
+
+  if (mintAmount > maxMintAllowed) {
+    alert(`You can mint up to ${maxMintAllowed} NFTs`);
+    return;
+  }
+
+  try {
+    const writeContract = await getWriteContract();
+
+    const PRICE_PER_NFT = ethers.parseEther("0.004");
+    const totalValue = PRICE_PER_NFT * BigInt(mintAmount);
+
+    const tx = await writeContract.mint(
+      mintAmount,
+      { value: totalValue }
+    );
+
+    console.log("Tx hash:", tx.hash);
+    await tx.wait();
+
+    alert("Mint successful");
+
+    const newSupply = await contract.totalSupply();
+    setMinted(newSupply.toString());
+
+  } catch (err) {
+    console.error(err);
+    alert(err.reason || err.message || "Mint failed");
+  }
+};
+
+
 
 const getSupply = async () => {
     const totalSupply = await contract.totalSupply();
     return totalSupply;
   }
-
-  const [minted, setMinted] = useState("0");
-  const remaining =  10000 - parseInt(minted);
-  const percentMinted = (parseInt(minted) / 10000) * 100;
 
   useEffect(() => {
     const fetchSupply = async () => {
@@ -311,26 +358,37 @@ const getSupply = async () => {
                 <div className="flex items-center justify-center gap-6">
                   <button
                     onClick={() => setMintAmount(Math.max(1, mintAmount - 1))}
+                    disabled={remaining === 0}
                     className="w-14 h-14 rounded-full border-2 border-white/20 hover:border-white hover:bg-white/10 transition-all font-bold text-2xl"
                   >
                     -
                   </button>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={mintAmount}
-                    onChange={(e) => setMintAmount(Math.min(10, Math.max(1, parseInt(e.target.value) || 1)))}
+                    <input
+                      type="number"
+                      min="1"
+                      max={maxMintAllowed}
+                      value={mintAmount}
+                      onChange={(e) =>
+                        setMintAmount(
+                          Math.min(
+                            maxMintAllowed,
+                            Math.max(1, parseInt(e.target.value) || 1)
+                          )
+                        )
+                      }
                     className="w-32 text-4xl font-bold text-center bg-transparent border-2 border-white/20 rounded-2xl py-3 focus:outline-none focus:border-white transition-all"
                   />
-                  <button
-                    onClick={() => setMintAmount(Math.min(10, mintAmount + 1))}
-                    className="w-14 h-14 rounded-full border-2 border-white/20 hover:border-white hover:bg-white/10 transition-all font-bold text-2xl"
-                  >
-                    +
-                  </button>
+                <button
+                  onClick={() =>
+                    setMintAmount(Math.min(maxMintAllowed, mintAmount + 1))
+                  }
+                  disabled={remaining === 0}
+                  className="w-14 h-14 rounded-full border-2 border-white/20 hover:border-white hover:bg-white/10 transition-all font-bold text-2xl"
+                >
+                  +
+                </button>
                 </div>
-                <p className="text-center text-sm text-gray-500 mt-4">Maximum 10 per transaction</p>
+                <p className="text-center text-sm text-gray-500 mt-4">Maximum 100 per transaction</p>
               </div>
               
               <button
