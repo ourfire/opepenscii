@@ -383,14 +383,21 @@ const getSupply = async () => {
               
               <button
                 onClick={handleMint}
-                className="w-full py-6 bg-white text-black rounded-2xl font-bold text-xl hover:bg-gray-200 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 disabled={!isConnected || isMinting || remaining === 0}
+                className={`
+                  w-full py-6 rounded-2xl font-bold text-xl transition-all duration-300
+                  ${isMinting || !isConnected || remaining === 0
+                    ? "bg-gray-400 text-gray-700 cursor-not-allowed pointer-events-none"
+                    : "bg-white text-black hover:bg-gray-200 hover:scale-[1.02]"}
+                `}
               >
-                {isConnected ? `MINT ${mintAmount} FOR ${(mintAmount * 0.004).toFixed(3)} ETH` : 'CONNECT WALLET TO MINT'}
-              {isMinting
-              ? "Minting..."
-              : `Mint ${mintAmount} for ${(mintAmount * 0.004).toFixed(3)} ETH`}
+                {isMinting
+                  ? "Minting..."
+                  : !isConnected
+                    ? "CONNECT WALLET TO MINT"
+                    : `MINT ${mintAmount} FOR ${(mintAmount * 0.004).toFixed(3)} ETH`}
               </button>
+
               
               <div className="h-3 bg-white/10 rounded-full overflow-hidden">
                 <div className="h-full bg-white rounded-full transition-all duration-500" style={{ width: `${percentMinted}%` }} />
