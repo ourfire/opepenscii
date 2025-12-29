@@ -135,22 +135,22 @@ export default function OpepensciiLanding() {
   ];
 
   const AsciiArtSVG = ({ topColor, windowColor, starColor, animate = false }) => (
-    <svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+  <svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
       <rect width="320" height="320" fill="#121212"/>
       <text 
-        x="160" 
-        y="155" 
-        fontFamily="'Courier New', Courier, monospace" 
-        fontWeight="bold" 
-        fontSize="160" 
-        textAnchor="middle"
+          x="160" 
+          y="155" 
+          font-family="Arial, sans-serif" 
+          font-weight="bold" 
+          font-size="40" 
+          text-anchor="middle"
       >
-        <tspan x="164" dy="0" fill={topColor} className={animate ? "animate-pulse" : ""}>◯◯</tspan>
-        <tspan x="152" dy="112" fill={windowColor} className={animate ? "animate-pulse" : ""} style={{ animationDelay: '0.2s' }}>◯</tspan>
-        <tspan x="176" dy="0" fill={windowColor} className={animate ? "animate-pulse" : ""} style={{ animationDelay: '0.3s' }}>◯</tspan>
-        <tspan x="190" dy="-140" fill={starColor} className={animate ? "animate-pulse" : ""} style={{ animationDelay: '0.5s' }}>*</tspan>
+        <tspan x="164" dy="0" fill={topColor}>◵◵</tspan>
+        <tspan x="152" dy="28" fill={windowColor}>⊞</tspan>
+        <tspan x="176" dy="0" fill={windowColor}>⊞</tspan>
+        <tspan x="190" dy="-35" fill={starColor}>*</tspan>
       </text>
-    </svg>
+  </svg>
   );
 
   return (
