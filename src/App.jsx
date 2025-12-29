@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Wallet, ExternalLink, Twitter, MessageCircle } from 'lucide-react';
 import {ethers} from 'ethers';
 import ABI from './abi.json';
+import etherscanLogo from './etherscan.png';
+
 
 export default function OpepensciiLanding() {
   const [isConnected, setIsConnected] = useState(false);
@@ -448,20 +450,54 @@ const getSupply = async () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-2xl font-bold tracking-wider">
               OPEPENSCII
-            </div>
-            
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-gray-400 transition-colors">
-                <Twitter size={24} />
-              </a>
-              <a href="#" className="hover:text-gray-400 transition-colors">
-                <MessageCircle size={24} />
-              </a>
-              <a href="#" className="hover:text-gray-400 transition-colors">
-                <ExternalLink size={24} />
-              </a>
-            </div>
-            
+            </div>          
+              <div className="flex gap-6 items-center">
+                {/* X */}
+                <a
+                  href="https://x.com/JdMelo182"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-gray-400 transition-colors"
+                  aria-label="X"
+                >
+<svg viewBox="0 0 1200 1227" className="w-6 h-6 fill-current">
+  <path d="M714.163 519.284L1160.89 0H1054.87L664.398 450.887L354.93 0H0L468.492 681.821L0 1226.37H106.017L518.128 750.218L845.067 1226.37H1200L714.137 519.284H714.163Z"/>
+</svg>
+
+                </a>
+
+                {/* OpenSea */}
+                <a
+                  href="https://opensea.io/collection/openpenscii"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-gray-400 transition-colors"
+                  aria-label="OpenSea"
+                >
+  <img
+    src="https://static.seadn.io/logos/Logomark-Transparent%20White.svg"
+    alt="Opensea"
+    className="w-6 h-6 object-contain"
+  />
+
+                </a>
+
+                {/* Etherscan */}
+<a
+  href="https://etherscan.io/address/0x1B52D008d60D0D2aeE831eE935199cb98fd43E78"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="hover:opacity-70 transition-opacity"
+  aria-label="Etherscan"
+>
+  <img
+    src={etherscanLogo}
+    alt="Etherscan"
+    className="w-6 h-6 object-contain"
+  />
+</a>
+
+              </div>  
             <p className="text-gray-500 text-sm">
               © 2025 Opepenscii. All rights reserved.
             </p>
